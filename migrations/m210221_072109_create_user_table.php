@@ -1,5 +1,6 @@
 <?php
 
+use yii\db\Schema;
 use yii\db\Migration;
 
 /**
@@ -10,18 +11,31 @@ class m210221_072109_create_user_table extends Migration
     /**
      * {@inheritdoc}
      */
+
     public function safeUp()
     {
+        $tableOptions = null;
+        if ($this->db->driverName === 'mysql') {
+            // http://stackoverflow.com/questions/766809/whats-the-difference-between-utf8-general-ci-and-utf8-unicode-ci
+            $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
+        }
+
         $this->createTable('{{%user}}', [
-            'id' => $this->primaryKey()->unsigned(),
-            'username' => $this->string(45)->notNull()->unique(),
-            'name' => $this->string(15)->notNull(),
-            'password' => $this->string(25)->notNull(),
-            'position' => $this->string(31)->notNull()->defaultValue('normal'),
-            'updated_date' => $this->timestamp()->notNull(),
-            'created_date' => $this->timestamp()->notNull()->defaultExpression('CURRENT_TIMESTAMP')
-        ]);
+            'id' => Schema::TYPE_PK,
+            'username' => Schema::TYPE_STRING . ' NOT NULL',
+            'auth_key' => Schema::TYPE_STRING . '(32) NOT NULL',
+            'displayname' => Schema::TYPE_STRING . '(50) NOT NULL',
+            'password_hash' => Schema::TYPE_STRING . ' NOT NULL',
+            'password_reset_token' => Schema::TYPE_STRING,
+            'email' => Schema::TYPE_STRING . ' NOT NULL',
+            'role' => Schema::TYPE_SMALLINT . ' NOT NULL DEFAULT 10',
+
+            'status' => Schema::TYPE_SMALLINT . ' NOT NULL DEFAULT 10',
+            'created_at' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'updated_at' => Schema::TYPE_INTEGER . ' NOT NULL',
+        ], $tableOptions);
     }
+
 
     /**
      * {@inheritdoc}
